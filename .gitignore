@@ -49,5 +49,5 @@ tests/**/features_out.txt
 features_out.txt
 
 # Build directory contents
-build/
+build/*
 
