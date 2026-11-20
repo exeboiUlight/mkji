@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>MKJI — язык программирования и документация</title>
+  <style>
+    :root {
+      --bg: #0f1115;
+      --bg-soft: #161922;
+      --bg-card: #1b2030;
+      --text: #e6e8ee;
+      --muted: #a7afc0;
+      --accent: #6ea8fe;
+      --accent2: #8bd5a0;
+      --border: #2a3142;
+      --code-bg: #111521;
+      --warn: #ffd166;
+      --danger: #ff7b72;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: var(--text);
+      background: linear-gradient(180deg, #0d1016 0%, #0f1115 100%);
+    }
+    a { color: var(--accent); }
+    code, pre, kbd { font-family: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", Menlo, monospace; }
+    code {
+      background: #141827;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 0.12em 0.38em;
+      font-size: 0.95em;
+    }
+    pre {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 16px;
+      overflow: auto;
+      margin: 0.75rem 0 1rem;
+    }
+    pre code {
+      background: transparent;
+      border: 0;
+      padding: 0;
+      font-size: 0.93em;
+      color: #e9edf7;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr);
+      gap: 0;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+    nav.toc {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: auto;
+      padding: 22px 18px 30px;
+      border-right: 1px solid var(--border);
+      background: rgba(15,17,21,0.96);
+    }
+    nav.toc h2 {
+      font-size: 1rem;
+      margin: 0 0 10px;
+      color: #fff;
+    }
+    nav.toc .brand {
+      font-size: 1.25rem;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    nav.toc .subtitle { color: var(--muted); font-size: 0.92rem; margin-bottom: 14px; }
+    nav.toc ul { list-style: none; padding: 0; margin: 0; }
+    nav.toc li { margin: 4px 0; }
+    nav.toc a {
+      color: var(--muted);
+      text-decoration: none;
+      font-size: 0.93rem;
+      display: block;
+      padding: 3px 6px;
+      border-radius: 6px;
+    }
+    nav.toc a:hover { color: #fff; background: #1a2030; }
+    nav.toc .sub { padding-left: 14px; font-size: 0.9rem; }
+    main {
+      padding: 28px 34px 60px;
+      min-width: 0;
+    }
+    .hero {
+      background: radial-gradient(1200px 400px at 10% -10%, #24314d 0%, transparent 60%), var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 28px 22px;
+      margin-bottom: 24px;
+    }
+    .hero h1 { margin: 0 0 8px; font-size: 2.2rem; }
+    .hero p { margin: 8px 0; color: var(--muted); max-width: 900px; }
+    .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+    .badge {
+      display: inline-block; padding: 4px 10px; border-radius: 999px;
+      border: 1px solid var(--border); background: #151a27; color: #dbe3f3; font-size: 0.88rem;
+    }
+    section {
+      margin: 26px 0;
+      padding: 22px 22px 10px;
+      background: var(--bg-soft);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+    }
+    h2 { margin: 0 0 10px; font-size: 1.55rem; color: #fff; }
+    h3 { margin: 18px 0 8px; font-size: 1.15rem; color: #f1f4fb; }
+    h4 { margin: 14px 0 6px; font-size: 1rem; color: #f1f4fb; }
+    p { margin: 8px 0 10px; }
+    ul, ol { margin: 8px 0 12px 22px; }
+    li { margin: 4px 0; }
+    .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 14px; }
+    .card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px 14px;
+    }
+    .note {
+      border-left: 4px solid var(--accent);
+      background: #151c2b;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      color: #d8e2f5;
+    }
+    .warn {
+      border-left: 4px solid var(--warn);
+      background: #2a2416;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      color: #fff3d6;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 0.95rem;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 8px 10px;
+      vertical-align: top;
+      text-align: left;
+    }
+    th { background: #1a2030; color: #fff; }
+    tr:nth-child(even) td { background: #171c29; }
+    .muted { color: var(--muted); }
+    .kws code { margin: 2px 4px 2px 0; display: inline-block; }
+    .anchor { scroll-margin-top: 16px; }
+    footer { color: var(--muted); margin-top: 18px; font-size: 0.92rem; }
+    @media (max-width: 980px) {
+      .layout { grid-template-columns: 1fr; }
+      nav.toc { position: relative; height: auto; border-right: 0; border-bottom: 1px solid var(--border); }
+      main { padding: 20px 16px 40px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <nav class="toc">
+      <div class="brand">MKJI</div>
+      <div class="subtitle">Язык, компилятор и документация</div>
+      <h2>Содержание</h2>
+      <ul>
+        <li><a href="#about">Что такое MKJI</a></li>
+        <li><a href="#quickstart">Быстрый старт</a></li>
+        <li><a href="#cli">CLI компилятора</a></li>
+        <li><a href="#projects">Проекты и манифесты</a></li>
+        <li><a href="#lexical">Лексика</a></li>
+        <li class="sub"><a href="#comments">Комментарии</a></li>
+        <li class="sub"><a href="#identifiers">Идентификаторы</a></li>
+        <li class="sub"><a href="#literals">Литералы</a></li>
+        <li><a href="#types">Типы</a></li>
+        <li><a href="#variables">Переменные и объявления</a></li>
+        <li><a href="#expressions">Выражения и операторы</a></li>
+        <li><a href="#statements">Инструкции</a></li>
+        <li><a href="#functions">Функции</a></li>
+        <li><a href="#classes">Классы и объекты</a></li>
+        <li><a href="#arrays">Массивы и строки</a></li>
+        <li><a href="#builtins">Встроенные функции</a></li>
+        <li><a href="#use">Подключение файлов (use)</a></li>
+        <li><a href="#program">Структура программы</a></li>
+        <li><a href="#errors">Ошибки и диагностика</a></li>
+        <li><a href="#tools">Инструменты</a></li>
+        <li><a href="#examples">Примеры</a></li>
+        <li><a href="#limitations">Ограничения и текущий статус</a></li>
+        <li><a href="#rebuild">Пересборка компилятора</a></li>
+      </ul>
+    </nav>
+
+    <main>
+      <header class="hero" id="top">
+        <h1>MKJI</h1>
+        <p><strong>MKJI</strong> — компилируемый язык программирования с C-подобным синтаксисом и собственным self-hosted компилятором. Компилятор написан на MKJI и генерирует нативные исполняемые файлы напрямую: <strong>PE64</strong> для Windows и <strong>ELF64</strong> для Linux x86-64, без внешнего ассемблера и линковщика.</p>
+        <p>На этой странице собрана подробная документация по языку, компилятору, проектам, инструментам и примерам использования.</p>
+        <div class="badges">
+          <span class="badge">.mk исходники</span>
+          <span class="badge">PE64 / ELF64</span>
+          <span class="badge">Self-hosted compiler</span>
+          <span class="badge">CLI, проекты, use, классы, массивы</span>
+        </div>
+      </header>
+
+      <section id="about" class="anchor">
+        <h2>Что такое MKJI</h2>
+        <p>MKJI — это язык со знакомым синтаксисом в стиле C: функции, блоки <code>{ }</code>, инструкции с <code>;</code>, условия, циклы, классы, массивы и явные типы. Компилятор транслирует исходный код в машинный исполняемый файл целевой платформы.</p>
+        <div class="grid2">
+          <div class="card">
+            <h3>Основные возможности</h3>
+            <ul>
+              <li>Типы: <code>int</code>, <code>bool</code>, <code>string</code>, <code>byte</code>, <code>void</code>, классы и массивы</li>
+              <li>Функции, параметры, возвращаемые значения</li>
+              <li>Классы с полями, методами, <code>this</code>, <code>init</code> и <code>new</code></li>
+              <li>Условия <code>if/else</code>, циклы <code>while</code>, <code>return</code></li>
+              <li>Массивы, строки, индексация, свойство <code>.len</code></li>
+              <li>Встроенные функции для вывода, файлового ввода-вывода, аргументов и др.</li>
+              <li>Подключение исходников через <code>use "file.mk";</code></li>
+              <li>Сборка одиночных файлов и проектов по манифесту</li>
+            </ul>
+          </div>
+          <div class="card">
+            <h3>Компилятор</h3>
+            <ul>
+              <li>Готовые бинарники: <code>mkji.exe</code> (Windows) и <code>mkji_elf</code> (Linux x86-64)</li>
+              <li>Цели: <code>pe</code> и <code>elf</code></li>
+              <li>Режимы: прямая компиляция, проектная сборка, создание проекта, legacy-режим через <code>mkji_build.txt</code></li>
+              <li>Исходники компилятора: каталог <code>src/</code>, точка входа <code>src/main.mk</code></li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="quickstart" class="anchor">
+        <h2>Быстрый старт</h2>
+        <h3>1. Компиляция одного файла</h3>
+        <p>Windows (PE64):</p>
+        <pre><code>.\mkji.exe examples\hello.mk -o hello.exe --target pe
+.\hello.exe</code></pre>
+        <p>Linux / WSL (ELF64):</p>
+        <pre><code>./mkji_elf examples/hello.mk -o hello --target elf
+chmod +x hello
+./hello</code></pre>
+
+        <h3>2. Минимальная программа</h3>
+        <pre><code>print("hello from MKJI!");
+int x = 10;
+int y = 32;
+print(x + y);</code></pre>
+
+        <h3>3. Создание и сборка проекта</h3>
+        <pre><code>.\mkji.exe new Demo
+.\mkji.exe build DemoProjects.mk</code></pre>
+        <p>Команда <code>new</code> создаёт файл манифеста <code>&lt;Name&gt;Projects.mk</code> и исходник <code>&lt;Name&gt;.mk</code>.</p>
+
+        <h3>4. Legacy-режим</h3>
+        <p>Если запустить компилятор без аргументов, он читает <code>mkji_build.txt</code> из текущего каталога (3 строки: входной файл, выходной файл, цель).</p>
+        <pre><code>src/main.mk
+mkji.exe
+pe</code></pre>
+      </section>
+
+      <section id="cli" class="anchor">
+        <h2>CLI компилятора</h2>
+        <table>
+          <thead>
+            <tr><th>Команда / форма</th><th>Описание</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><code>mkji</code></td>
+              <td>Legacy-сборка: читает <code>mkji_build.txt</code> (вход, выход, цель).</td>
+            </tr>
+            <tr>
+              <td><code>mkji &lt;file.mk&gt; [-o &lt;out&gt;] [--target pe|elf]</code></td>
+              <td>Прямая компиляция одного входного файла. Поддерживаются также формы <code>--target=pe</code>, <code>--target=elf</code>.</td>
+            </tr>
+            <tr>
+              <td><code>mkji build &lt;Project.mk&gt;</code></td>
+              <td>Сборка проекта по манифесту. Требуется явный путь к файлу проекта.</td>
+            </tr>
+            <tr>
+              <td><code>mkji new &lt;Name&gt;</code></td>
+              <td>Создаёт шаблон проекта: <code>&lt;Name&gt;Projects.mk</code> и <code>&lt;Name&gt;.mk</code>.</td>
+            </tr>
+            <tr>
+              <td><code>mkji help</code> / <code>--help</code> / <code>-h</code></td>
+              <td>Показывает справку по использованию.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <h3>Поведение по умолчанию</h3>
+        <ul>
+          <li>Цель по умолчанию: <code>pe</code>.</li>
+          <li>Если <code>-o</code> не указан, имя выхода выбирается по имени входного файла: <code>.exe</code> для PE, <code>.elf</code> для ELF.</li>
+          <li>Алиас цели: <code>linux</code> трактуется как <code>elf</code>.</li>
+          <li>При успешной компиляции печатается путь входа и выхода, затем сообщение о завершении.</li>
+        </ul>
+      </section>
+
+      <section id="projects" class="anchor">
+        <h2>Проекты и манифесты</h2>
+        <p>Проект описывается текстовым манифестом (обычно <code>*Projects.mk</code>) с парами ключ/значение по строкам.</p>
+
+        <h3>Поддерживаемые ключи</h3>
+        <table>
+          <thead>
+            <tr><th>Ключ</th><th>Обязательность</th><th>Назначение</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><code>main:</code></td><td>обязательный</td><td>Путь к главному исходному файлу (<code>.mk</code>).</td></tr>
+            <tr><td><code>target:</code></td><td>необязательный</td><td>Целевая платформа: <code>pe</code> или <code>elf</code> (<code>linux</code> = <code>elf</code>). По умолчанию <code>pe</code>.</td></tr>
+            <tr><td><code>output:</code></td><td>необязательный</td><td>Путь к выходному файлу. Если не задан, выводится из <code>main</code>.</td></tr>
+            <tr><td><code>lib:</code></td><td>необязательный, повторяемый</td><td>Дополнительные исходники/библиотеки, которые парсятся в ту же программу перед <code>main</code>.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Пример манифеста</h3>
+        <pre><code>main: src/main.mk
+target: elf
+output: build/app
+lib: src/core/utils.mk
+lib: src/core/math.mk</code></pre>
+
+        <div class="note">Сборка проекта объединяет указанные <code>lib</code>-файлы и <code>main</code> в одну компилируемую программу. Дополнительно внутри исходников можно использовать <code>use</code> для включения файлов.</div>
+      </section>
+
+      <section id="lexical" class="anchor">
+        <h2>Лексика</h2>
+
+        <h3 id="comments">Комментарии</h3>
+        <ul>
+          <li>Однострочные: <code>// комментарий</code></li>
+          <li>Блочные: <code>/* комментарий */</code></li>
+        </ul>
+        <pre><code>// это однострочный комментарий
+int x = 1; /* блочный комментарий */</code></pre>
+
+        <h3 id="identifiers">Идентификаторы и ключевые слова</h3>
+        <p>Идентификаторы начинаются с буквы или <code>_</code>, далее могут содержать буквы, цифры и <code>_</code>.</p>
+        <p class="kws"><strong>Ключевые слова и специальные слова:</strong>
+          <code>fn</code><code>class</code><code>if</code><code>else</code><code>while</code><code>return</code><code>use</code><code>new</code><code>this</code><code>true</code><code>false</code><code>null</code><code>void</code><code>int</code><code>bool</code><code>byte</code><code>string</code><code>print</code><code>panic</code><code>read_file</code><code>write_file</code><code>str_from</code><code>arg_count</code><code>get_arg</code><code>var</code>
+        </p>
+        <div class="warn"><code>var</code> распознаётся, но объявления через <code>var</code> не поддерживаются — используйте явные типы (<code>int x = ...;</code> и т.д.).</div>
+
+        <h3 id="literals">Литералы</h3>
+        <table>
+          <thead><tr><th>Вид</th><th>Форма</th><th>Примеры</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Целое (десятичное)</td>
+              <td>Последовательность цифр</td>
+              <td><code>0</code>, <code>42</code>, <code>1024</code></td>
+            </tr>
+            <tr>
+              <td>Целое (шестнадцатеричное)</td>
+              <td><code>0x</code> / <code>0X</code> + hex-цифры</td>
+              <td><code>0xFF</code>, <code>0x0F</code>, <code>0x10</code></td>
+            </tr>
+            <tr>
+              <td>Строка</td>
+              <td>В двойных кавычках, с escape-последовательностями</td>
+              <td><code>"hello"</code>, <code>"line\n"</code></td>
+            </tr>
+            <tr>
+              <td>Логическое</td>
+              <td><code>true</code> / <code>false</code></td>
+              <td><code>true</code>, <code>false</code></td>
+            </tr>
+            <tr>
+              <td>Null-ссылка</td>
+              <td><code>null</code></td>
+              <td><code>null</code></td>
+            </tr>
+          </tbody>
+        </table>
+        <p>Поддерживаемые escape-последовательности в строках: <code>\n</code>, <code>\t</code>, <code>\r</code>, <code>\0</code>, <code>\\</code>, <code>\"</code>.</p>
+      </section>
+
+      <section id="types" class="anchor">
+        <h2>Типы</h2>
+        <h3>Базовые типы</h3>
+        <table>
+          <thead><tr><th>Тип</th><th>Описание</th></tr></thead>
+          <tbody>
+            <tr><td><code>int</code></td><td>Целочисленный тип (в реализации используется 64-битное целое представление/регистры).</td></tr>
+            <tr><td><code>bool</code></td><td>Логический тип: <code>true</code> или <code>false</code>.</td></tr>
+            <tr><td><code>string</code></td><td>Строковый объект. Поддерживает индексацию по байтам/символам-кодам и <code>.len</code>.</td></tr>
+            <tr><td><code>byte</code></td><td>Байтовый базовый тип (чаще всего используется как <code>byte[]</code>).</td></tr>
+            <tr><td><code>void</code></td><td>Отсутствие значения (для функций).</td></tr>
+            <tr><td><code>ClassName</code></td><td>Ссылочный тип пользовательского класса.</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Массивы</h3>
+        <p>Массивы задаются суффиксом <code>[]</code> после базового типа:</p>
+        <ul>
+          <li><code>int[]</code></li>
+          <li><code>byte[]</code></li>
+          <li><code>string[]</code></li>
+          <li><code>MyClass[]</code> (массив ссылок на объекты класса)</li>
+        </ul>
+        <pre><code>int[] nums = new int[3];
+byte[] buf = new byte[16];
+string[] names = new string[2];
+Point[] points = new Point[10];</code></pre>
+
+        <div class="note">Точное статическое поведение и проверки типов зависят от текущей реализации компилятора. В пользовательском коде рекомендуется явно придерживаться согласованных типов объявлений, параметров и возвращаемых значений.</div>
+      </section>
+
+      <section id="variables" class="anchor">
+        <h2>Переменные и объявления</h2>
+        <h3>Объявление с явным типом</h3>
+        <pre><code>int x = 10;
+bool ok = true;
+string name = "MKJI";
+Point p = new Point(1, 2);</code></pre>
+        <p>Форма объявления: <code>&lt;тип&gt; &lt;имя&gt; [= &lt;выражение&gt;];</code></p>
+        <ul>
+          <li>Объявления могут встречаться на верхнем уровне и внутри блоков/функций.</li>
+          <li>Внутри функций локальные переменные сохраняются в локальной области функции; на верхнем уровне — как глобальные/верхнеуровневые переменные программы.</li>
+          <li><code>var</code> не поддерживается.</li>
+        </ul>
+
+        <h3>Присваивание</h3>
+        <p>Присваивание — выражение вида <code>цель = значение</code>. В качестве цели поддерживаются:</p>
+        <ul>
+          <li>переменная: <code>x = 5;</code></li>
+          <li>поле объекта: <code>p.x = 10;</code></li>
+          <li>элемент массива/строки по индексу: <code>arr[i] = 1;</code></li>
+        </ul>
+        <pre><code>int x = 1;
+x = x + 1;
+
+Point p = new Point(0, 0);
+p.x = 7;
+
+int[] a = new int[2];
+a[0] = 100;</code></pre>
+      </section>
+
+      <section id="expressions" class="anchor">
+        <h2>Выражения и операторы</h2>
+
+        <h3>Поддерживаемые операторы</h3>
+        <table>
+          <thead><tr><th>Группа</th><th>Операторы</th><th>Примечания</th></tr></thead>
+          <tbody>
+            <tr><td>Постфиксные / доступ</td><td><code>()</code>, <code>.</code>, <code>[]</code></td><td>Вызов, доступ к полю/методу, индексация, <code>.len</code></td></tr>
+            <tr><td>Унарные</td><td><code>-</code>, <code>!</code>, <code>&amp;</code>, <code>|</code>, <code>^</code></td><td>Унарный минус, логическое/унарные операции по поддержке компилятора</td></tr>
+            <tr><td>Создание</td><td><code>new</code></td><td><code>new Type[n]</code>, <code>new Class(...)</code></td></tr>
+            <tr><td>Мультипликативные</td><td><code>*</code>, <code>/</code>, <code>%</code></td><td>Арифметика</td></tr>
+            <tr><td>Аддитивные / сдвиги</td><td><code>+</code>, <code>-</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code></td><td>Сложение/вычитание, битовые сдвиги</td></tr>
+            <tr><td>Сравнения</td><td><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>==</code>, <code>!=</code></td><td>Для строк <code>==/!=</code> выполняется сравнение содержимого</td></tr>
+            <tr><td>Побитовые/логические</td><td><code>&amp;</code>, <code>^</code>, <code>|</code>, <code>&amp;&amp;</code>, <code>||</code></td><td><code>&amp;&amp;</code> и <code>||</code> вычисляются с коротким замыканием</td></tr>
+            <tr><td>Присваивание</td><td><code>=</code></td><td>Правоассоциативное выражение присваивания</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Приоритет (от более высокого к более низкому)</h3>
+        <table>
+          <thead><tr><th>Уровень</th><th>Конструкции / операторы</th></tr></thead>
+          <tbody>
+            <tr><td>1</td><td>Первичные и постфиксные: литералы, идентификаторы, <code>this</code>, <code>(expr)</code>, вызовы, <code>.поле</code>, <code>.метод()</code>, <code>.len</code>, <code>[index]</code></td></tr>
+            <tr><td>2</td><td>Унарные: <code>-</code>, <code>!</code>, <code>&amp;</code>, <code>|</code>, <code>^</code>, а также <code>new</code></td></tr>
+            <tr><td>3</td><td><code>*</code>, <code>/</code>, <code>%</code></td></tr>
+            <tr><td>4</td><td><code>+</code>, <code>-</code>, <code>&lt;&lt;</code>, <code>&gt;&gt;</code></td></tr>
+            <tr><td>5</td><td><code>&amp;</code> (бинарный)</td></tr>
+            <tr><td>6</td><td><code>&lt;</code>, <code>&lt;=</code>, <code>&gt;</code>, <code>&gt;=</code>, <code>==</code>, <code>!=</code></td></tr>
+            <tr><td>7</td><td><code>^</code> (бинарный)</td></tr>
+            <tr><td>8</td><td><code>|</code> (бинарный)</td></tr>
+            <tr><td>9</td><td><code>&amp;&amp;</code></td></tr>
+            <tr><td>10</td><td><code>||</code></td></tr>
+            <tr><td>11</td><td><code>=</code> (присваивание)</td></tr>
+          </tbody>
+        </table>
+
+        <h3>Вызовы</h3>
+        <pre><code>int r = sum(2, 3);      // вызов функции
+obj.method(10);          // вызов метода
+print(r);                // встроенная функция</code></pre>
+
+        <h3>Доступ к членам и индексация</h3>
+        <pre><code>p.x = 5;                 // поле
+int v = nums[0];         // индекс массива
+int ch = s[1];           // индекс строки
+int n = nums.len;        // длина массива/строки</code></pre>
+      </section>
+
+      <section id="statements" class="anchor">
+        <h2>Инструкции</h2>
+        <h3>Блок</h3>
+        <pre><code>{
+    int x = 1;
+    print(x);
+}</code></pre>
+
+        <h3>Условие <code>if / else</code></h3>
+        <pre><code>if (x &gt; 0) {
+    print("positive");
+} else {
+    print("non-positive");
+}</code></pre>
+        <p>Ветви могут быть блоком или одиночной инструкцией.</p>
+
+        <h3>Цикл <code>while</code></h3>
+        <pre><code>int i = 0;
+while (i &lt; 3) {
+    print(i);
+    i = i + 1;
+}</code></pre>
+
+        <h3>Возврат <code>return</code></h3>
+        <pre><code>fn int inc(int x) {
+    return x + 1;
+}
+
+fn void log_done() {
+    print("done");
+    return;
+}</code></pre>
+
+        <h3>Пустая инструкция</h3>
+        <pre><code>;</code></pre>
+
+        <div class="note">В текущем синтаксисе нет <code>for</code>, <code>break</code> и <code>continue</code>.</div>
+      </section>
+
+      <section id="functions" class="anchor">
+        <h2>Функции</h2>
+        <p>Объявление функции начинается с <code>fn</code>, затем указывается тип возвращаемого значения, имя, список параметров и тело-блок.</p>
+        <pre><code>fn int add(int a, int b) {
+    return a + b;
+}
+
+fn void greet(string name) {
+    print("hello");
+    print(name);
+}</code></pre>
+
+        <ul>
+          <li>Параметры объявляются с явными типами.</li>
+          <li>Функции могут вызывать другие функции и сами себя (рекурсия поддерживается).</li>
+          <li>Функции могут объявляться на верхнем уровне и как методы внутри классов.</li>
+        </ul>
+      </section>
+
+      <section id="classes" class="anchor">
+        <h2>Классы и объекты</h2>
+        <h3>Объявление класса</h3>
+        <p>Класс может содержать поля и методы. Поля объявляются как <code>&lt;тип&gt; &lt;имя&gt;;</code>, методы — как функции с <code>fn</code>.</p>
+        <pre><code>class Point {
+    int x;
+    int y;
+
+    fn void init(int px, int py) {
+        this.x = px;
+        this.y = py;
+    }
+
+    fn int sum() {
+        return this.x + this.y;
+    }
+}</code></pre>
+
+        <h3>Создание объектов и <code>init</code></h3>
+        <ul>
+          <li>Объект создаётся через <code>new ClassName(...)</code>.</li>
+          <li>Если в классе определён метод <code>init</code>, он вызывается автоматически при создании объекта с переданными аргументами.</li>
+          <li><code>this</code> доступен внутри методов и ссылается на текущий объект.</li>
+        </ul>
+        <pre><code>Point p = new Point(3, 4);
+print(p.x);      // 3
+print(p.sum());  // 7</code></pre>
+
+        <h3>Доступ к полям и методам</h3>
+        <pre><code>p.x = 10;            // запись поля
+int y = p.y;         // чтение поля
+int s = p.sum();     // вызов метода</code></pre>
+
+        <h3>Массивы объектов</h3>
+        <pre><code>Point[] points = new Point[2];
+points[0] = new Point(1, 2);
+points[1] = new Point(3, 4);
+print(points[0].sum());</code></pre>
+      </section>
+
+      <section id="arrays" class="anchor">
+        <h2>Массивы и строки</h2>
+        <h3>Создание массивов</h3>
+        <p>Массивы создаются через <code>new</code> с указанием типа элемента и длины:</p>
+        <pre><code>int[] nums = new int[3];
+byte[] buf = new byte[4];
+string[] words = new string[2];</code></pre>
+
+        <h3>Индексация и длина</h3>
+        <ul>
+          <li>Доступ по индексу: <code>a[i]</code></li>
+          <li>Длина массива/строки: <code>a.len</code>, <code>s.len</code></li>
+        </ul>
+        <pre><code>int[] nums = new int[3];
+nums[0] = 10;
+nums[1] = 20;
+nums[2] = 30;
+print(nums[1]);   // 20
+print(nums.len);  // 3
+
+string s = "ABC";
+print(s[0]);      // код/значение элемента
+print(s.len);     // 3</code></pre>
+
+        <h3>Строки и байтовые буферы</h3>
+        <pre><code>string s = "ABC";
+byte[] buf = new byte[3];
+buf[0] = s[0];
+buf[1] = s[1];
+buf[2] = s[2];
+
+bool ok = write_file("out.txt", buf);
+string text = read_file("out.txt");</code></pre>
+      </section>
+
+      <section id="builtins" class="anchor">
+        <h2>Встроенные функции</h2>
+        <table>
+          <thead><tr><th>Функция</th><th>Назначение</th><th>Примечания</th></tr></thead>
+          <tbody>
+            <tr>
+              <td><code>print(x)</code></td>
+              <td>Вывод значения (с переводом строки).</td>
+              <td>Поддерживает типы, для которых в рантайме есть вывод (числа/bool/строки/объекты и т.д.).</td>
+            </tr>
+            <tr>
+              <td><code>read_file(path)</code></td>
+              <td>Читает файл и возвращает содержимое как строку.</td>
+              <td><code>path</code> — строка. При ошибке может вернуть <code>null</code>.</td>
+            </tr>
+            <tr>
+              <td><code>write_file(path, data)</code></td>
+              <td>Записывает данные в файл.</td>
+              <td>Обычно используется с <code>byte[]</code>/буфером; возвращает признак успеха.</td>
+            </tr>
+            <tr>
+              <td><code>panic(message)</code></td>
+              <td>Аварийно завершает выполнение с сообщением.</td>
+              <td>Используется для фатальных ошибок в программе.</td>
+            </tr>
+            <tr>
+              <td><code>str_from(bytes, len)</code></td>
+              <td>Создаёт строку из байтового буфера и длины.</td>
+              <td>Полезно при ручной работе с байтами.</td>
+            </tr>
+            <tr>
+              <td><code>arg_count()</code></td>
+              <td>Возвращает количество аргументов командной строки.</td>
+              <td>Типично <code>int</code>.</td>
+            </tr>
+            <tr>
+              <td><code>get_arg(i)</code></td>
+              <td>Возвращает аргумент командной строки по индексу.</td>
+              <td>Типично <code>string</code>; при выходе за диапазон может вернуть пустую строку.</td>
+            </tr>
+          </tbody>
+        </table>
+
+        <pre><code>print(arg_count());
+string a0 = get_arg(0);
+string a1 = get_arg(1);
+print(a0);
+print(a1);</code></pre>
+      </section>
+
+      <section id="use" class="anchor">
+        <h2>Подключение файлов (<code>use</code>)</h2>
+        <p>Инструкция <code>use</code> включает другой исходный файл на этапе разбора:</p>
+        <pre><code>use "lib.mk";
+use "utils/math.mk";</code></pre>
+        <ul>
+          <li>Синтаксис: <code>use "&lt;path&gt;";</code></li>
+          <li>Относительные пути разрешаются относительно файла, в котором написан <code>use</code>.</li>
+          <li>Повторное включение одного и того же файла пропускается (защита от повторного подключения).</li>
+          <li>Если файл не найден или не может быть прочитан, компиляция завершается ошибкой.</li>
+        </ul>
+      </section>
+
+      <section id="program" class="anchor">
+        <h2>Структура программы</h2>
+        <ul>
+          <li>Исходный файл имеет расширение <code>.mk</code>.</li>
+          <li>Программа состоит из последовательности инструкций и объявлений (функции, классы, переменные, выражения, <code>use</code> и т.д.).</li>
+          <li>Инструкции верхнего уровня поддерживаются и выполняются как точка входа программы.</li>
+          <li>Функции и классы могут объявляться в исходном тексте; объявления классов содержат поля и методы.</li>
+        </ul>
+        <pre><code>use "lib.mk";
+
+fn int twice(int x) { return x * 2; }
+
+class Box {
+    int v;
+    fn void init(int n) { this.v = n; }
+}
+
+Box b = new Box(21);
+print(twice(b.v));</code></pre>
+      </section>
+
+      <section id="errors" class="anchor">
+        <h2>Ошибки и диагностика</h2>
+        <p>Текущая реализация компилятора при фатальных ошибках обычно завершает работу с текстовым сообщением (без единого формата с кодами ошибок и координатами <code>файл:строка:столбец</code> во всех случаях).</p>
+
+        <h3>Примеры сообщений компилятора</h3>
+        <ul>
+          <li><code>expected punctuation</code>, <code>expected keyword</code>, <code>expected end of file</code></li>
+          <li><code>expected expression</code>, <code>invalid assignment target</code></li>
+          <li><code>expected type name</code>, <code>expected variable name</code>, <code>expected function name</code>, <code>expected class name</code></li>
+          <li><code>typed declarations only</code> (для <code>var</code>)</li>
+          <li><code>use expects a string path</code>, <code>cannot open included file</code></li>
+          <li><code>duplicate class</code>, <code>only fields and fn allowed in class</code></li>
+          <li><code>new expects class or array type</code></li>
+          <li>Сообщения CLI вида <code>mkji: ...</code> (например, отсутствие входного файла проекта/манифеста, ошибки чтения/создания файлов)</li>
+        </ul>
+
+        <h3>Ошибки времени выполнения (рантайм)</h3>
+        <p>Скомпилированные программы могут завершаться аварийно при некоторых условиях выполнения, например:</p>
+        <ul>
+          <li>разыменование <code>null</code> / недопустимый доступ к объекту</li>
+          <li>вызов отсутствующего метода (в зависимости от ситуации диспетчеризации)</li>
+          <li>нехватка памяти при выделении</li>
+          <li>явный вызов <code>panic(...)</code></li>
+        </ul>
+
+        <div class="warn">Для удобной работы в редакторе используйте анализатор <code>tools/mkji-analyzer.py</code> и/или расширение VSCode: они могут предоставлять диагностику с координатами и дополнительными проверками поверх поведения компилятора.</div>
+      </section>
+
+      <section id="tools" class="anchor">
+        <h2>Инструменты</h2>
+        <div class="grid2">
+          <div class="card">
+            <h3>Статический анализатор</h3>
+            <p>Файл: <code>tools/mkji-analyzer.py</code></p>
+            <ul>
+              <li>Проверяет <code>.mk</code> файлы и каталоги рекурсивно</li>
+              <li>Сообщает о лексических/структурных проблемах с позициями <code>строка:столбец</code></li>
+              <li>Может дополнительно запускать компилятор для выявления ошибок компиляции</li>
+              <li>Форматы вывода: <code>text</code>, <code>vscode</code>, <code>json</code></li>
+            </ul>
+            <pre><code>python tools/mkji-analyzer.py --format text src/main.mk
+python tools/mkji-analyzer.py --format vscode --compiler ./mkji.exe examples/hello.mk</code></pre>
+          </div>
+          <div class="card">
+            <h3>Расширение VSCode</h3>
+            <p>Каталог: <code>vscode-mkji/</code></p>
+            <ul>
+              <li>Подсветка синтаксиса для <code>.mk</code></li>
+              <li>Конфигурация языка (комментарии, скобки, авто-закрытие)</li>
+              <li>Диагностика ошибок при открытии/сохранении и по командам</li>
+              <li>Интеграция с анализатором и/или компилятором</li>
+            </ul>
+            <p class="muted">См. <code>vscode-mkji/README.md</code> для настройки путей к Python, анализатору и компилятору.</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="examples" class="anchor">
+        <h2>Примеры</h2>
+
+        <h3>Hello / выражения</h3>
+        <pre><code>int x = 10;
+int y = 32;
+print("hello from MKJI!");
+print(x + y);
+print(x &gt; 5 &amp;&amp; y &lt; 100);</code></pre>
+
+        <h3>Функции, классы, циклы</h3>
+        <pre><code>class Point {
+    int x;
+    int y;
+
+    fn void init(int px, int py) {
+        this.x = px;
+        this.y = py;
+    }
+
+    fn int sum() {
+        return this.x + this.y;
+    }
+
+    fn string describe() {
+        return "Point";
+    }
+}
+
+fn int twice(int n) {
+    return n * 2;
+}
+
+Point p = new Point(3, 4);
+print(p.describe());
+print(p.x);
+print(p.sum());
+print(twice(p.sum()));
+
+int i = 0;
+while (i &lt; 3) {
+    print(i);
+    i = i + 1;
+}</code></pre>
+
+        <h3>Массивы, строки, побитовые операции, файлы, аргументы</h3>
+        <pre><code>string s = "ABC";
+byte[] buf = new byte[3];
+buf[0] = s[0];
+buf[1] = s[1];
+buf[2] = s[2];
+
+int[] nums = new int[3];
+nums[0] = 10;
+nums[1] = 20;
+nums[2] = 30;
+
+print(buf.len);
+print(s.len);
+print(nums[1]);
+
+int a = 0xFF &amp; 0x0F;
+int b = 0xF0 | 0x0F;
+int c = 0xF0 ^ 0xFF;
+int d = 1 &lt;&lt; 4;
+int e = 256 &gt;&gt; 4;
+print(a); print(b); print(c); print(d); print(e);
+
+bool ok = write_file("out.txt", buf);
+print(ok);
+string back = read_file("out.txt");
+print(back);
+
+print(arg_count());
+print(get_arg(0));</code></pre>
+
+        <h3>Подключение файлов</h3>
+        <pre><code>// lib.mk
+fn int add(int a, int b) {
+    return a + b;
+}
+
+// main.mk
+use "lib.mk";
+print(add(2, 3));</code></pre>
+      </section>
+
+      <section id="limitations" class="anchor">
+        <h2>Ограничения и текущий статус</h2>
+        <ul>
+          <li>Компилятор и язык активно развиваются; поведение и набор диагностик могут расширяться.</li>
+          <li>Формат ошибок компилятора сейчас в основном текстовый (без стабильных кодов/координат во всех сообщениях).</li>
+          <li>В языке отсутствуют некоторые конструкции, привычные по другим языкам (например, <code>for</code>, <code>break</code>, <code>continue</code>).</li>
+          <li>Часть семантических проверок и удобства диагностики может быть реализована на уровне внешних инструментов (анализатор, расширение редактора).</li>
+          <li>Проектная модель проста: манифест на строковых ключах и сборка указанных исходников в одну программу.</li>
+        </ul>
+      </section>
+
+      <section id="rebuild" class="anchor">
+        <h2>Пересборка компилятора</h2>
+        <p>Компилятор сам написан на MKJI, поэтому его можно пересобирать уже собранным компилятором.</p>
+
+        <h3>Windows</h3>
+        <pre><code>.\mkji.exe src\main.mk -o mkji.exe --target pe</code></pre>
+        <p>Также можно использовать legacy-режим из корня проекта, если <code>mkji_build.txt</code> настроен на сборку <code>src/main.mk</code>.</p>
+
+        <h3>Linux / WSL</h3>
+        <pre><code>./mkji_elf src/main.mk -o mkji_elf --target elf
+chmod +x mkji_elf</code></pre>
+
+        <h3>Тесты</h3>
+        <pre><code>powershell -ExecutionPolicy Bypass -File tests/run_pe_tests.ps1
+sh tests/run_elf_tests.sh</code></pre>
+      </section>
+
+      <footer>
+        <p>MKJI — язык программирования и self-hosted компилятор. Документация на этой странице описывает текущее устройство языка, CLI, проектов и инструментов репозитория.</p>
+      </footer>
+    </main>
+  </div>
+</body>
+</html>

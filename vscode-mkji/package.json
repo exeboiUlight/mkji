@@ -1,0 +1,117 @@
+{
+  "name": "mkji-language",
+  "displayName": "MKJI Language",
+  "description": "Syntax highlighting and diagnostics for the MKJI programming language",
+  "version": "0.1.0",
+  "publisher": "mkji",
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.75.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Linters"
+  ],
+  "activationEvents": [
+    "onLanguage:mkji",
+    "onCommand:mkji.analyzeFile",
+    "onCommand:mkji.analyzeWorkspace"
+  ],
+  "main": "./src/extension.js",
+  "contributes": {
+    "languages": [
+      {
+        "id": "mkji",
+        "aliases": [
+          "MKJI",
+          "mkji"
+        ],
+        "extensions": [
+          ".mk"
+        ],
+        "configuration": "./language-configuration.json"
+      }
+    ],
+    "grammars": [
+      {
+        "language": "mkji",
+        "scopeName": "source.mkji",
+        "path": "./syntaxes/mkji.tmLanguage.json"
+      }
+    ],
+    "commands": [
+      {
+        "command": "mkji.analyzeFile",
+        "title": "MKJI: Analyze Current File"
+      },
+      {
+        "command": "mkji.analyzeWorkspace",
+        "title": "MKJI: Analyze Workspace"
+      }
+    ],
+    "configuration": {
+      "title": "MKJI",
+      "properties": {
+        "mkji.analyzer.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable MKJI diagnostics (analyzer/compiler)."
+        },
+        "mkji.analyzer.runOnSave": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run analysis when an MKJI file is saved."
+        },
+        "mkji.analyzer.runOnOpen": {
+          "type": "boolean",
+          "default": true,
+          "description": "Run analysis when an MKJI file is opened."
+        },
+        "mkji.analyzer.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to mkji-analyzer.py. If empty, the extension looks for tools/mkji-analyzer.py in the workspace."
+        },
+        "mkji.pythonPath": {
+          "type": "string",
+          "default": "python",
+          "description": "Python executable used to run the analyzer (e.g. python, py, python3)."
+        },
+        "mkji.compiler.path": {
+          "type": "string",
+          "default": "",
+          "description": "Optional path to mkji compiler executable. If set, the analyzer can also report compiler errors."
+        },
+        "mkji.compiler.useWorkspaceDefault": {
+          "type": "boolean",
+          "default": true,
+          "description": "If mkji.compiler.path is empty, try mkji.exe or mkji_elf from the workspace root."
+        },
+        "mkji.analyzer.debounceMs": {
+          "type": "number",
+          "default": 400,
+          "minimum": 0,
+          "description": "Delay before running analysis after changes (ms)."
+        }
+      }
+    },
+    "problemMatchers": [
+      {
+        "name": "mkji",
+        "owner": "mkji",
+        "fileLocation": [
+          "relative",
+          "${workspaceFolder}"
+        ],
+        "pattern": {
+          "regexp": "^(.*)\\((\\d+),(\\d+)\\):\\s+(error|warning|info):\\s+(.*)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "severity": 4,
+          "message": 5
+        }
+      }
+    ]
+  }
+}

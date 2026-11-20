@@ -1,0 +1,179 @@
+{
+  "$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+  "name": "MKJI",
+  "scopeName": "source.mkji",
+  "patterns": [
+    { "include": "#comments" },
+    { "include": "#strings" },
+    { "include": "#numbers" },
+    { "include": "#keywords" },
+    { "include": "#types" },
+    { "include": "#builtins" },
+    { "include": "#constants" },
+    { "include": "#function-def" },
+    { "include": "#class-def" },
+    { "include": "#new-expr" },
+    { "include": "#use" },
+    { "include": "#operators" },
+    { "include": "#punctuation" }
+  ],
+  "repository": {
+    "comments": {
+      "patterns": [
+        {
+          "name": "comment.line.double-slash.mkji",
+          "match": "//.*$"
+        },
+        {
+          "name": "comment.block.mkji",
+          "begin": "/\\*",
+          "end": "\\*/"
+        }
+      ]
+    },
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.mkji",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.mkji",
+              "match": "\\\\(n|t|r|0|\\\\|\")"
+            },
+            {
+              "name": "constant.character.escape.mkji",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    },
+    "numbers": {
+      "patterns": [
+        {
+          "name": "constant.numeric.hex.mkji",
+          "match": "\\b0[xX][0-9a-fA-F]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.mkji",
+          "match": "\\b[0-9]+\\b"
+        }
+      ]
+    },
+    "keywords": {
+      "patterns": [
+        {
+          "name": "keyword.control.mkji",
+          "match": "\\b(if|else|while|return|use|new)\\b"
+        },
+        {
+          "name": "keyword.declaration.mkji",
+          "match": "\\b(fn|class)\\b"
+        },
+        {
+          "name": "variable.language.this.mkji",
+          "match": "\\bthis\\b"
+        }
+      ]
+    },
+    "types": {
+      "patterns": [
+        {
+          "name": "storage.type.primitive.mkji",
+          "match": "\\b(int|bool|byte|string|void)\\b"
+        }
+      ]
+    },
+    "builtins": {
+      "patterns": [
+        {
+          "name": "support.function.builtin.mkji",
+          "match": "\\b(print|panic|read_file|write_file|str_from|arg_count|get_arg)\\b"
+        }
+      ]
+    },
+    "constants": {
+      "patterns": [
+        {
+          "name": "constant.language.boolean.true.mkji",
+          "match": "\\btrue\\b"
+        },
+        {
+          "name": "constant.language.boolean.false.mkji",
+          "match": "\\bfalse\\b"
+        },
+        {
+          "name": "constant.language.null.mkji",
+          "match": "\\bnull\\b"
+        }
+      ]
+    },
+    "function-def": {
+      "patterns": [
+        {
+          "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\s*\\[\\s*\\])*)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
+          "captures": {
+            "1": { "name": "keyword.declaration.function.mkji" },
+            "2": { "name": "storage.type.mkji" },
+            "3": { "name": "entity.name.function.mkji" }
+          }
+        }
+      ]
+    },
+    "class-def": {
+      "patterns": [
+        {
+          "match": "\\b(class)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.declaration.class.mkji" },
+            "2": { "name": "entity.name.type.class.mkji" }
+          }
+        }
+      ]
+    },
+    "new-expr": {
+      "patterns": [
+        {
+          "match": "\\b(new)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.control.new.mkji" },
+            "2": { "name": "support.type.mkji" }
+          }
+        }
+      ]
+    },
+    "use": {
+      "patterns": [
+        {
+          "match": "\\b(use)\\s+(\"[^\"]*\")",
+          "captures": {
+            "1": { "name": "keyword.control.import.mkji" },
+            "2": { "name": "string.quoted.double.mkji" }
+          }
+        }
+      ]
+    },
+    "operators": {
+      "patterns": [
+        {
+          "name": "keyword.operator.mkji",
+          "match": "(&&|\\|\\||<<|>>|==|!=|<=|>=|[+\\-*/%<>=!&|^])"
+        }
+      ]
+    },
+    "punctuation": {
+      "patterns": [
+        {
+          "name": "punctuation.separator.mkji",
+          "match": "[;,]"
+        },
+        {
+          "name": "punctuation.accessor.mkji",
+          "match": "\\."
+        }
+      ]
+    }
+  }
+}

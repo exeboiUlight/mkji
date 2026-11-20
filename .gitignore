@@ -1,0 +1,59 @@
+# OS / editors
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+/tmp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Node / VSCode extension artifacts
+node_modules/
+vscode-mkji/node_modules/
+vscode-mkji/out/
+vscode-mkji/*.vsix
+
+# Build and test artifacts
+*.o
+*.obj
+*.pdb
+*.ilk
+*.exp
+*.lib
+*.a
+*.so
+*.dylib
+*.out
+
+# Generated executables/binaries from local builds and tests
+*.exe
+*.elf
+
+# Generated test outputs
+tests/**/*.exe
+tests/**/*.elf
+tests/**/*.out
+tests/**/features_out.txt
+features_out.txt
+
+# Keep shipped compiler binaries and distributable build files
+!mkji.exe
+!mkji_elf
+!mkji_self.exe
+!build/mkji.exe
+!build/mkji_elf
+!build/mkji_self.exe
+!build/README.md
+!build/LICENSE
