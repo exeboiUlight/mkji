@@ -5,15 +5,20 @@
   "patterns": [
     { "include": "#comments" },
     { "include": "#strings" },
-    { "include": "#numbers" },
+    { "include": "#use-statement" },
+    { "include": "#class-declaration" },
+    { "include": "#function-declaration" },
+    { "include": "#new-expression" },
     { "include": "#keywords" },
-    { "include": "#types" },
-    { "include": "#builtins" },
     { "include": "#constants" },
-    { "include": "#function-def" },
-    { "include": "#class-def" },
-    { "include": "#new-expr" },
-    { "include": "#use" },
+    { "include": "#numbers" },
+    { "include": "#builtin-calls" },
+    { "include": "#method-calls" },
+    { "include": "#function-calls" },
+    { "include": "#member-access" },
+    { "include": "#primitive-types" },
+    { "include": "#declaration-types" },
+    { "include": "#array-brackets" },
     { "include": "#operators" },
     { "include": "#punctuation" }
   ],
@@ -27,7 +32,13 @@
         {
           "name": "comment.block.mkji",
           "begin": "/\\*",
-          "end": "\\*/"
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.comment.begin.mkji" }
+          },
+          "end": "\\*/",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.comment.end.mkji" }
+          }
         }
       ]
     },
@@ -36,29 +47,83 @@
         {
           "name": "string.quoted.double.mkji",
           "begin": "\"",
+          "beginCaptures": {
+            "0": { "name": "punctuation.definition.string.begin.mkji" }
+          },
           "end": "\"",
+          "endCaptures": {
+            "0": { "name": "punctuation.definition.string.end.mkji" }
+          },
           "patterns": [
             {
               "name": "constant.character.escape.mkji",
-              "match": "\\\\(n|t|r|0|\\\\|\")"
+              "match": "\\\\(?:[ntr0\\\\\"']|x[0-9A-Fa-f]{2}|u[0-9A-Fa-f]{4})"
             },
             {
-              "name": "constant.character.escape.mkji",
+              "name": "invalid.illegal.escape.mkji",
               "match": "\\\\."
             }
           ]
         }
       ]
     },
-    "numbers": {
+    "use-statement": {
       "patterns": [
         {
-          "name": "constant.numeric.hex.mkji",
-          "match": "\\b0[xX][0-9a-fA-F]+\\b"
-        },
+          "name": "meta.use.mkji",
+          "match": "\\b(use)\\s+(\"(?:\\\\.|[^\"\\\\])*\")",
+          "captures": {
+            "1": { "name": "keyword.control.import.mkji" },
+            "2": { "name": "string.quoted.double.mkji" }
+          }
+        }
+      ]
+    },
+    "class-declaration": {
+      "patterns": [
         {
-          "name": "constant.numeric.integer.mkji",
-          "match": "\\b[0-9]+\\b"
+          "name": "meta.class.declaration.mkji",
+          "match": "\\b(class)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "storage.type.class.mkji" },
+            "2": { "name": "entity.name.type.class.mkji" }
+          }
+        }
+      ]
+    },
+    "function-declaration": {
+      "patterns": [
+        {
+          "name": "meta.function.declaration.mkji",
+          "match": "\\b(fn)\\s+((?:[A-Za-z_][A-Za-z0-9_]*)(?:\\s*\\[\\s*\\])*)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
+          "captures": {
+            "1": { "name": "storage.type.function.mkji" },
+            "2": {
+              "patterns": [
+                { "include": "#primitive-types" },
+                { "name": "entity.name.type.mkji", "match": "[A-Za-z_][A-Za-z0-9_]*" },
+                { "name": "storage.modifier.array.mkji", "match": "\\[\\s*\\]" }
+              ]
+            },
+            "3": { "name": "entity.name.function.definition.mkji" }
+          }
+        }
+      ]
+    },
+    "new-expression": {
+      "patterns": [
+        {
+          "name": "meta.new.mkji",
+          "match": "\\b(new)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "captures": {
+            "1": { "name": "keyword.operator.new.mkji" },
+            "2": {
+              "patterns": [
+                { "include": "#primitive-types" },
+                { "name": "entity.name.type.mkji", "match": "[A-Za-z_][A-Za-z0-9_]*" }
+              ]
+            }
+          }
         }
       ]
     },
@@ -66,31 +131,27 @@
       "patterns": [
         {
           "name": "keyword.control.mkji",
-          "match": "\\b(if|else|while|return|use|new)\\b"
+          "match": "\\b(?:if|else|while|return)\\b"
         },
         {
-          "name": "keyword.declaration.mkji",
-          "match": "\\b(fn|class)\\b"
+          "name": "keyword.control.import.mkji",
+          "match": "\\buse\\b"
+        },
+        {
+          "name": "keyword.operator.new.mkji",
+          "match": "\\bnew\\b"
+        },
+        {
+          "name": "storage.type.function.mkji",
+          "match": "\\bfn\\b"
+        },
+        {
+          "name": "storage.type.class.mkji",
+          "match": "\\bclass\\b"
         },
         {
           "name": "variable.language.this.mkji",
           "match": "\\bthis\\b"
-        }
-      ]
-    },
-    "types": {
-      "patterns": [
-        {
-          "name": "storage.type.primitive.mkji",
-          "match": "\\b(int|bool|byte|string|void)\\b"
-        }
-      ]
-    },
-    "builtins": {
-      "patterns": [
-        {
-          "name": "support.function.builtin.mkji",
-          "match": "\\b(print|panic|read_file|write_file|str_from|arg_count|get_arg)\\b"
         }
       ]
     },
@@ -110,68 +171,157 @@
         }
       ]
     },
-    "function-def": {
+    "numbers": {
       "patterns": [
         {
-          "match": "\\b(fn)\\s+([A-Za-z_][A-Za-z0-9_]*(?:\\s*\\[\\s*\\])*)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
+          "name": "constant.numeric.hex.mkji",
+          "match": "\\b0[xX][0-9A-Fa-f]+\\b"
+        },
+        {
+          "name": "constant.numeric.integer.decimal.mkji",
+          "match": "\\b\\d+\\b"
+        }
+      ]
+    },
+    "builtin-calls": {
+      "patterns": [
+        {
+          "match": "\\b(print|panic|read_file|write_file|str_from|arg_count|get_arg)\\s*(?=\\()",
           "captures": {
-            "1": { "name": "keyword.declaration.function.mkji" },
-            "2": { "name": "storage.type.mkji" },
-            "3": { "name": "entity.name.function.mkji" }
+            "1": { "name": "support.function.builtin.mkji" }
           }
         }
       ]
     },
-    "class-def": {
+    "method-calls": {
       "patterns": [
         {
-          "match": "\\b(class)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "match": "(\\.)\\s*([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
           "captures": {
-            "1": { "name": "keyword.declaration.class.mkji" },
-            "2": { "name": "entity.name.type.class.mkji" }
+            "1": { "name": "punctuation.accessor.dot.mkji" },
+            "2": { "name": "entity.name.function.method.mkji" }
           }
         }
       ]
     },
-    "new-expr": {
+    "function-calls": {
       "patterns": [
         {
-          "match": "\\b(new)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
           "captures": {
-            "1": { "name": "keyword.control.new.mkji" },
-            "2": { "name": "support.type.mkji" }
+            "1": { "name": "entity.name.function.call.mkji" }
           }
         }
       ]
     },
-    "use": {
+    "member-access": {
       "patterns": [
         {
-          "match": "\\b(use)\\s+(\"[^\"]*\")",
+          "match": "(\\.)\\s*([A-Za-z_][A-Za-z0-9_]*)",
           "captures": {
-            "1": { "name": "keyword.control.import.mkji" },
-            "2": { "name": "string.quoted.double.mkji" }
+            "1": { "name": "punctuation.accessor.dot.mkji" },
+            "2": { "name": "variable.other.property.mkji" }
           }
+        }
+      ]
+    },
+    "primitive-types": {
+      "patterns": [
+        {
+          "name": "support.type.primitive.mkji",
+          "match": "\\b(?:int|bool|string|byte|void)\\b"
+        }
+      ]
+    },
+    "declaration-types": {
+      "patterns": [
+        {
+          "comment": "Type in variable/field/parameter declarations: Type name  or  Type[] name",
+          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)(\\s*(?:\\[\\s*\\])*)\\s+(?=[A-Za-z_][A-Za-z0-9_]*\\s*(?:=|;|,|\\)))",
+          "captures": {
+            "1": {
+              "patterns": [
+                { "include": "#primitive-types" },
+                {
+                  "name": "entity.name.type.mkji",
+                  "match": "\\b(?!if\\b|else\\b|while\\b|return\\b|fn\\b|class\\b|new\\b|use\\b|this\\b|true\\b|false\\b|null\\b|print\\b|panic\\b|read_file\\b|write_file\\b|str_from\\b|arg_count\\b|get_arg\\b)[A-Za-z_][A-Za-z0-9_]*\\b"
+                }
+              ]
+            },
+            "2": { "name": "storage.modifier.array.mkji" }
+          }
+        }
+      ]
+    },
+    "array-brackets": {
+      "patterns": [
+        {
+          "name": "storage.modifier.array.mkji",
+          "match": "\\[\\s*\\]"
         }
       ]
     },
     "operators": {
       "patterns": [
         {
-          "name": "keyword.operator.mkji",
-          "match": "(&&|\\|\\||<<|>>|==|!=|<=|>=|[+\\-*/%<>=!&|^])"
+          "name": "keyword.operator.logical.mkji",
+          "match": "&&|\\|\\||!"
+        },
+        {
+          "name": "keyword.operator.comparison.mkji",
+          "match": "==|!=|<=|>=|<|>"
+        },
+        {
+          "name": "keyword.operator.bitwise.mkji",
+          "match": "<<|>>|&|\\||\\^"
+        },
+        {
+          "name": "keyword.operator.arithmetic.mkji",
+          "match": "\\+|\\-|\\*|/|%"
+        },
+        {
+          "name": "keyword.operator.assignment.mkji",
+          "match": "="
         }
       ]
     },
     "punctuation": {
       "patterns": [
         {
-          "name": "punctuation.separator.mkji",
-          "match": "[;,]"
+          "name": "punctuation.terminator.statement.mkji",
+          "match": ";"
         },
         {
-          "name": "punctuation.accessor.mkji",
+          "name": "punctuation.separator.comma.mkji",
+          "match": ","
+        },
+        {
+          "name": "punctuation.accessor.dot.mkji",
           "match": "\\."
+        },
+        {
+          "name": "punctuation.section.block.begin.mkji",
+          "match": "\\{"
+        },
+        {
+          "name": "punctuation.section.block.end.mkji",
+          "match": "\\}"
+        },
+        {
+          "name": "punctuation.section.parens.begin.mkji",
+          "match": "\\("
+        },
+        {
+          "name": "punctuation.section.parens.end.mkji",
+          "match": "\\)"
+        },
+        {
+          "name": "punctuation.section.brackets.begin.mkji",
+          "match": "\\["
+        },
+        {
+          "name": "punctuation.section.brackets.end.mkji",
+          "match": "\\]"
         }
       ]
     }
