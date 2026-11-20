@@ -57,4 +57,5 @@ build/mkji_elf
 build/mkji_self.exe
 build/mkji-language-0.1.1.vsix
 build/README.md*
-
+opencode.json
+.gitignore
