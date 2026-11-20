@@ -49,5 +49,12 @@ tests/**/features_out.txt
 features_out.txt
 
 # Build directory contents
-build/*
+build/
+build/build.zip
+build/LICENSE
+build/mkji.exe
+build/mkji_elf
+build/mkji_self.exe
+build/mkji-language-0.1.1.vsix
+build/README.md*
 
