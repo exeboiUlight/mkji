@@ -47,13 +47,13 @@ tests/**/*.elf
 tests/**/*.out
 tests/**/features_out.txt
 features_out.txt
+mkji.exe
+mkji_elf
+mkji_self.exe
+build/mkji.exe
+build/mkji_elf
+build/mkji_self.exe
 
 # Keep shipped compiler binaries and distributable build files
-!mkji.exe
-!mkji_elf
-!mkji_self.exe
-!build/mkji.exe
-!build/mkji_elf
-!build/mkji_self.exe
 !build/README.md
 !build/LICENSE
