@@ -23,7 +23,6 @@ __pycache__/
 node_modules/
 vscode-mkji/node_modules/
 vscode-mkji/out/
-vscode-mkji/*.vsix
 
 # Build and test artifacts
 *.o
@@ -37,23 +36,14 @@ vscode-mkji/*.vsix
 *.dylib
 *.out
 
-# Generated executables/binaries from local builds and tests
+# Executables and binaries
 *.exe
 *.elf
 
+# VSCode extension package
+*.vsix
+
 # Generated test outputs
-tests/**/*.exe
-tests/**/*.elf
 tests/**/*.out
 tests/**/features_out.txt
 features_out.txt
-mkji.exe
-mkji_elf
-mkji_self.exe
-build/mkji.exe
-build/mkji_elf
-build/mkji_self.exe
-
-# Keep shipped compiler binaries and distributable build files
-!build/README.md
-!build/LICENSE
