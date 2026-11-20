@@ -24,6 +24,10 @@ class Image {
     int[] sym_ids;
     int nsyms;
 
+    // ELF dynamic linking info (file offsets / sizes), 0 if not dynamic
+    int dyn_off;
+    int dyn_size;
+
     fn void setup(int target) {
         this.code = new Buf();
         this.data = new Buf();
@@ -51,6 +55,9 @@ class Image {
         this.sym_names = new string[8192];
         this.sym_ids = new int[8192];
         this.nsyms = 0;
+
+        this.dyn_off = 0;
+        this.dyn_size = 0;
     }
 
     fn int new_label() {
@@ -349,6 +356,14 @@ class Image {
         int off = this.code.len;
         this.e32(0);
         this.fix_id(id, 1, 0, off);
+    }
+
+    fn void call_rip(string lbl) {
+        // call [rip+disp32] - used for ELF PLT/GOT slots (kind 3)
+        this.e16(0x15FF);
+        int off = this.code.len;
+        this.e32(0);
+        this.fix(lbl, 3, 0, off);
     }
 
     fn void call(string lbl) {

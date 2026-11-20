@@ -193,6 +193,7 @@
         <li><a href="#arrays">Массивы и строки</a></li>
         <li><a href="#builtins">Встроенные функции</a></li>
         <li><a href="#use">Подключение файлов (use)</a></li>
+        <li><a href="#ffi">Внешние функции (FFI, extern)</a></li>
         <li><a href="#program">Структура программы</a></li>
         <li><a href="#errors">Ошибки и диагностика</a></li>
         <li><a href="#tools">Инструменты</a></li>
@@ -229,6 +230,7 @@
               <li>Массивы, строки, индексация, свойство <code>.len</code></li>
               <li>Встроенные функции для вывода, файлового ввода-вывода, аргументов и др.</li>
               <li>Подключение исходников через <code>use "file.mk";</code></li>
+              <li>Импорт функций из динамических библиотек через <code>extern</code> (DLL на Windows, <code>.so</code> на Linux)</li>
               <li>Сборка одиночных файлов и проектов по манифесту</li>
             </ul>
           </div>
@@ -353,7 +355,7 @@ int x = 1; /* блочный комментарий */</code></pre>
         <h3 id="identifiers">Идентификаторы и ключевые слова</h3>
         <p>Идентификаторы начинаются с буквы или <code>_</code>, далее могут содержать буквы, цифры и <code>_</code>.</p>
         <p class="kws"><strong>Ключевые слова и специальные слова:</strong>
-          <code>fn</code><code>class</code><code>if</code><code>else</code><code>while</code><code>return</code><code>use</code><code>new</code><code>this</code><code>true</code><code>false</code><code>null</code><code>void</code><code>int</code><code>bool</code><code>byte</code><code>string</code><code>print</code><code>panic</code><code>read_file</code><code>write_file</code><code>str_from</code><code>arg_count</code><code>get_arg</code><code>var</code>
+          <code>fn</code><code>class</code><code>if</code><code>else</code><code>while</code><code>return</code><code>use</code><code>new</code><code>this</code><code>true</code><code>false</code><code>null</code><code>void</code><code>int</code><code>bool</code><code>byte</code><code>string</code><code>print</code><code>panic</code><code>read_file</code><code>write_file</code><code>str_from</code><code>arg_count</code><code>get_arg</code><code>var</code><code>extern</code><code>as</code>
         </p>
         <div class="warn"><code>var</code> распознаётся, но объявления через <code>var</code> не поддерживаются — используйте явные типы (<code>int x = ...;</code> и т.д.).</div>
 
@@ -695,6 +697,53 @@ use "utils/math.mk";</code></pre>
           <li>Повторное включение одного и того же файла пропускается (защита от повторного подключения).</li>
           <li>Если файл не найден или не может быть прочитан, компиляция завершается ошибкой.</li>
         </ul>
+      </section>
+
+      <section id="ffi" class="anchor">
+        <h2>Внешние функции (FFI, <code>extern</code>)</h2>
+        <p>MKJI позволяет объявлять и вызывать функции из внешних динамических библиотек: <strong>DLL</strong> на Windows (PE64) и разделяемых библиотек <strong><code>.so</code></strong> на Linux (ELF64).</p>
+
+        <h3>Синтаксис</h3>
+        <p>Блочная форма (несколько функций из одной библиотеки):</p>
+        <pre><code>extern "kernel32.dll" {
+    fn int GetCurrentProcessId();
+    fn void SetLastError(int err);
+    fn int GetLastError();
+}</code></pre>
+
+        <p>Одиночная форма:</p>
+        <pre><code>extern "libc.so.6" fn int getpid();</code></pre>
+
+        <p>Явное имя экспортируемого символа с помощью <code>as</code> (если имя символа в библиотеке отличается от имени в MKJI):</p>
+        <pre><code>extern "kernel32.dll" fn int GetTickCount() as "GetTickCount";</code></pre>
+
+        <h3>Семантика и соглашения</h3>
+        <ul>
+          <li>В блоке <code>extern "lib" { ... }</code> объявляются сигнатуры функций (тип возврата, имя, параметры). Имена параметров можно опускать.</li>
+          <li>Объявленные внешние функции вызываются так же, как обычные функции MKJI.</li>
+          <li><code>string</code> при передаче во внешнюю функцию маршалится как указатель на данные строки (C-совместимая последовательность байтов); значение <code>null</code> передаётся как нулевой указатель.</li>
+          <li><code>byte[]</code> передаётся как указатель на данные массива; <code>null</code> — как нулевой указатель.</li>
+          <li>Значения других типов передаются напрямую; возвращаемое значение берётся из регистра результата (<code>RAX</code>).</li>
+        </ul>
+
+        <h3>Поддержка платформ</h3>
+        <table>
+          <thead><tr><th>Цель</th><th>Библиотеки</th><th>Статус</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Windows, <code>--target pe</code></td>
+              <td>DLL (например, <code>kernel32.dll</code>, <code>user32.dll</code>)</td>
+              <td>Поддерживается: импорт через таблицу импорта PE, вызов через IAT</td>
+            </tr>
+            <tr>
+              <td>Linux x86-64, <code>--target elf</code></td>
+              <td>Разделяемые библиотеки <code>.so</code> (например, <code>libc.so.6</code>)</td>
+              <td>Поддерживается: динамическое связывание (GOT/динамические релокации), требуется интерпретатор <code>/lib64/ld-linux-x86-64.so.2</code></td>
+            </tr>
+          </tbody>
+        </table>
+
+        <div class="note">Имя библиотеки указывается строкой так, как его ожидает загрузчик целевой платформы (например, <code>kernel32.dll</code> в Windows или <code>libc.so.6</code> в Linux).</div>
       </section>
 
       <section id="program" class="anchor">

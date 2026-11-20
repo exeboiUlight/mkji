@@ -184,7 +184,7 @@ function analyzeAllWorkspace() {
 
 /** -------------------- Code intelligence (hints/completions) -------------------- */
 
-const KEYWORDS = ['if', 'else', 'while', 'return', 'use', 'fn', 'class', 'new', 'this', 'true', 'false', 'null'];
+const KEYWORDS = ['if', 'else', 'while', 'return', 'use', 'fn', 'class', 'new', 'this', 'true', 'false', 'null', 'extern', 'as'];
 const TYPES = ['int', 'bool', 'string', 'byte', 'void'];
 
 const BUILTINS = [
@@ -204,6 +204,8 @@ const SNIPPETS = [
   { label: 'ifelse', detail: 'Условие if/else', insert: 'if (${1:condition}) {\n\t$2\n} else {\n\t$0\n}', kind: vscode.CompletionItemKind.Snippet },
   { label: 'while', detail: 'Цикл while', insert: 'while (${1:condition}) {\n\t$0\n}', kind: vscode.CompletionItemKind.Snippet },
   { label: 'use', detail: 'Подключение файла', insert: 'use "${1:file.mk}";', kind: vscode.CompletionItemKind.Snippet },
+  { label: 'extern block', detail: 'Импорт функций из библиотеки', insert: 'extern "${1:library.dll}" {\n\tfn ${2:int} ${3:Name}(${4:params});\n}', kind: vscode.CompletionItemKind.Snippet },
+  { label: 'extern fn', detail: 'Импорт одной функции из библиотеки', insert: 'extern "${1:library.dll}" fn ${2:int} ${3:Name}(${4:params});', kind: vscode.CompletionItemKind.Snippet },
   { label: 'new array', detail: 'Создание массива', insert: 'new ${1:int}[${2:size}]', kind: vscode.CompletionItemKind.Snippet },
   { label: 'new object', detail: 'Создание объекта класса', insert: 'new ${1:ClassName}(${2:args})', kind: vscode.CompletionItemKind.Snippet },
   { label: 'print', detail: 'print(...)', insert: 'print(${1:value});', kind: vscode.CompletionItemKind.Snippet },

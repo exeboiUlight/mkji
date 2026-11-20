@@ -291,11 +291,26 @@ class Parser {
                 }
                 this.eatp(41);
                 if (e.kind == 5) {
-                    c.id = this.prog.find_func(e.sval, e.slen);
-                    c.sval = e.sval;
-                    c.slen = e.slen;
-                    if (c.id >= 0) c.ty = this.prog.funcs[c.id].ret;
-                    else c.ty = 1;
+                    int fid = this.prog.find_func(e.sval, e.slen);
+                    if (fid >= 0) {
+                        c.id = fid;
+                        c.sval = e.sval;
+                        c.slen = e.slen;
+                        c.ty = this.prog.funcs[fid].ret;
+                    } else {
+                        int eid = this.prog.find_extern(e.sval, e.slen);
+                        if (eid >= 0) {
+                            c.id = -100 - eid;
+                            c.sval = e.sval;
+                            c.slen = e.slen;
+                            c.ty = this.prog.externs[eid].ret;
+                        } else {
+                            c.id = -1;
+                            c.sval = e.sval;
+                            c.slen = e.slen;
+                            c.ty = 1;
+                        }
+                    }
                 } else {
                     c.id = -1;
                     c.ty = 1;
@@ -570,6 +585,71 @@ class Parser {
         return s;
     }
 
+    fn void parse_extern_fn(byte[] libname, int libnlen) {
+        this.eat("fn");
+        int ret = this.parse_type();
+        if (this.lx.cur.kind != 1) die("expected extern function name");
+        byte[] nm = this.lx.cur.text;
+        int nl = this.lx.cur.tlen;
+        this.adv();
+        this.eatp(40);
+        int libid = this.prog.add_extlib(libname, libnlen);
+        ExternFunc ef = new ExternFunc();
+        ef.name = nm;
+        ef.namelen = nl;
+        ef.cname = nm;
+        ef.cnlen = nl;
+        ef.lib = libid;
+        ef.ret = ret;
+        ef.ptypes = new int[16];
+        ef.nparams = 0;
+        if (!this.p(41)) {
+            bool more = true;
+            while (more) {
+                int pt = this.parse_type();
+                if (this.lx.cur.kind == 1) {
+                    this.adv();
+                }
+                ef.ptypes[ef.nparams] = pt;
+                ef.nparams = ef.nparams + 1;
+                if (this.p(44)) this.adv(); else more = false;
+            }
+        }
+        this.eatp(41);
+        if (this.kw("as")) {
+            this.adv();
+            if (this.lx.cur.kind != 3) die("expected string after as");
+            ef.cname = this.lx.cur.text;
+            ef.cnlen = this.lx.cur.ival;
+            this.adv();
+        }
+        this.eatp(59);
+        this.prog.add_extern(ef);
+    }
+
+    fn void parse_extern() {
+        this.eat("extern");
+        if (this.lx.cur.kind != 3) die("extern expects library name string");
+        byte[] libname = this.lx.cur.text;
+        int libnlen = this.lx.cur.ival;
+        this.adv();
+        if (this.p(123)) {
+            this.eatp(123);
+            while (!this.p(125) && this.lx.cur.kind != 5) {
+                if (this.kw("fn")) {
+                    this.parse_extern_fn(libname, libnlen);
+                } else {
+                    die("expected fn in extern block");
+                }
+            }
+            this.eatp(125);
+        } else if (this.kw("fn")) {
+            this.parse_extern_fn(libname, libnlen);
+        } else {
+            die("expected fn or { after extern library name");
+        }
+    }
+
     fn void parse_file(string path) {
         int i = 0;
         while (i < this.nincluded) {
@@ -607,6 +687,10 @@ class Parser {
             this.eatp(59);
             string rpath = this.resolve_include(path);
             this.parse_file(rpath);
+            return newstmt(0);
+        }
+        if (this.kw("extern")) {
+            this.parse_extern();
             return newstmt(0);
         }
         if (this.kw("var")) die("typed declarations only");

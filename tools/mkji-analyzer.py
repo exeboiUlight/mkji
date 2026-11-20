@@ -43,7 +43,7 @@ class Diag:
 KEYWORDS = {
     "fn", "class", "if", "else", "while", "return", "use", "new", "this",
     "true", "false", "null", "print", "panic", "read_file", "write_file",
-    "str_from", "arg_count", "get_arg", "var",
+    "str_from", "arg_count", "get_arg", "var", "extern", "as",
 }
 TYPE_KEYWORDS = {"int", "bool", "byte", "string", "void"}
 

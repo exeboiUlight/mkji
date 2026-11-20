@@ -266,6 +266,142 @@ class Codegen {
         return -1;
     }
 
+    fn string ext_iat_label(int idx) {
+        byte[] b = new byte[24];
+        b[0] = 105; b[1] = 97; b[2] = 116; b[3] = 95; b[4] = 101; b[5] = 120; b[6] = 116; b[7] = 95;
+        int n = 8;
+        if (idx == 0) {
+            b[n] = 48;
+            n = n + 1;
+        } else {
+            byte[] tmp = new byte[12];
+            int t = 0;
+            int v = idx;
+            while (v > 0) {
+                tmp[t] = 48 + (v % 10);
+                t = t + 1;
+                v = v / 10;
+            }
+            int k = t - 1;
+            while (k >= 0) {
+                b[n] = tmp[k];
+                n = n + 1;
+                k = k - 1;
+            }
+        }
+        return str_from(b, n);
+    }
+
+    fn void marshal_extern_arg(int ty) {
+        // RAX holds MKJI value; convert to C ABI argument in RAX
+        if (ty == 3) {
+            // string -> pointer to char data (offset 16), null -> 0
+            int nonnull = this.tmp();
+            int done = this.tmp();
+            this.img.test_rr(0, 0);
+            this.img.jcc_id(1, nonnull);
+            this.img.xor_rr(0, 0);
+            this.img.jmp_id(done);
+            this.img.mark_id(nonnull, 0, this.img.code.len);
+            this.img.add_ri(0, 16);
+            this.img.mark_id(done, 0, this.img.code.len);
+        } else if (ty == 4) {
+            // byte[] -> pointer to data (offset 8), null -> 0
+            int nonnull = this.tmp();
+            int done = this.tmp();
+            this.img.test_rr(0, 0);
+            this.img.jcc_id(1, nonnull);
+            this.img.xor_rr(0, 0);
+            this.img.jmp_id(done);
+            this.img.mark_id(nonnull, 0, this.img.code.len);
+            this.img.add_ri(0, 8);
+            this.img.mark_id(done, 0, this.img.code.len);
+        }
+    }
+
+    fn void emit_extern_call(Expr e) {
+        int idx = -100 - e.id;
+        ExternFunc ef = this.prog.externs[idx];
+        int n = e.nargs;
+
+        int k = 0;
+        while (k < n) {
+            this.emit_expr(e.args[k]);
+            int pty = 1;
+            if (k < ef.nparams) pty = ef.ptypes[k];
+            this.marshal_extern_arg(pty);
+            this.img.push(0);
+            k = k + 1;
+        }
+
+        if (this.img.target == 1) {
+            int stack_args = 0;
+            if (n > 4) stack_args = n - 4;
+            if (n >= 1) this.img.mov_r_mem(1, 4, (n - 1) * 8); // RCX
+            if (n >= 2) this.img.mov_r_mem(2, 4, (n - 2) * 8); // RDX
+            if (n >= 3) this.img.mov_r_mem(8, 4, (n - 3) * 8); // R8
+            if (n >= 4) this.img.mov_r_mem(9, 4, (n - 4) * 8); // R9
+            this.img.mov_rr(11, 4); // saved pushed-args rsp
+            int frame = 32 + stack_args * 8;
+            int alloc16 = frame;
+            if ((alloc16 % 16) != 0) alloc16 = alloc16 + (16 - (alloc16 % 16));
+            int save_off = alloc16;
+            int total = alloc16 + 8;
+            if ((total % 16) != 0) total = total + (16 - (total % 16));
+            this.img.and_ri(4, -16);
+            if (total > 0) this.img.sub_ri(4, total);
+            this.img.mov_mem_r(4, save_off, 11); // save across call (R11 is volatile)
+            int si = 4;
+            while (si < n) {
+                int src_off = (n - 1 - si) * 8;
+                int dst_off = 32 + (si - 4) * 8;
+                this.img.mov_r_mem(10, 11, src_off);
+                this.img.mov_mem_r(4, dst_off, 10);
+                si = si + 1;
+            }
+            this.img.call_iat(this.ext_iat_label(idx));
+            this.img.mov_r_mem(11, 4, save_off); // restore saved rsp
+            this.img.mov_rr(4, 11);
+            if (n > 0) this.img.add_ri(4, n * 8);
+        } else {
+            int stack_args = 0;
+            if (n > 6) stack_args = n - 6;
+            if (n >= 1) this.img.mov_r_mem(7, 4, (n - 1) * 8); // RDI
+            if (n >= 2) this.img.mov_r_mem(6, 4, (n - 2) * 8); // RSI
+            if (n >= 3) this.img.mov_r_mem(2, 4, (n - 3) * 8); // RDX
+            if (n >= 4) this.img.mov_r_mem(1, 4, (n - 4) * 8); // RCX
+            if (n >= 5) this.img.mov_r_mem(8, 4, (n - 5) * 8); // R8
+            if (n >= 6) this.img.mov_r_mem(9, 4, (n - 6) * 8); // R9
+            this.img.mov_rr(11, 4); // saved pushed-args rsp
+            int sframe = 0;
+            if (stack_args > 0) {
+                sframe = stack_args * 8;
+                if ((sframe % 16) != 0) sframe = sframe + 8;
+            }
+            int save_off = sframe;
+            int total = sframe + 8;
+            if ((total % 16) != 0) total = total + (16 - (total % 16));
+            this.img.and_ri(4, -16);
+            if (total > 0) this.img.sub_ri(4, total);
+            this.img.mov_mem_r(4, save_off, 11);
+            if (stack_args > 0) {
+                int si = 6;
+                while (si < n) {
+                    int src_off = (n - 1 - si) * 8;
+                    int dst_off = (si - 6) * 8;
+                    this.img.mov_r_mem(10, 11, src_off);
+                    this.img.mov_mem_r(4, dst_off, 10);
+                    si = si + 1;
+                }
+            }
+            this.img.xor_rr(0, 0);
+            this.img.call_iat(this.ext_iat_label(idx));
+            this.img.mov_r_mem(11, 4, save_off);
+            this.img.mov_rr(4, 11);
+            if (n > 0) this.img.add_ri(4, n * 8);
+        }
+    }
+
     fn void emit_call_expr(Expr e) {
         int n = e.nargs;
         if (e.id == -3) {
@@ -316,6 +452,10 @@ class Codegen {
             this.img.call("_get_arg");
             return;
         }
+        if (e.id <= -100) {
+            this.emit_extern_call(e);
+            return;
+        }
         if (e.method) {
             this.emit_expr(e.a);
             this.img.push(0);
@@ -340,7 +480,16 @@ class Codegen {
         int fid = e.id;
         if (fid < 0) {
             fid = this.prog.find_func(e.sval, e.slen);
-            if (fid < 0) die("unknown function");
+            if (fid < 0) {
+                int eid = this.prog.find_extern(e.sval, e.slen);
+                if (eid >= 0) {
+                    e.id = -100 - eid;
+                    e.ty = this.prog.externs[eid].ret;
+                    this.emit_extern_call(e);
+                    return;
+                }
+                die("unknown function");
+            }
             e.id = fid;
             e.ty = this.prog.funcs[fid].ret;
         }

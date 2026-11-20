@@ -6,6 +6,7 @@
     { "include": "#comments" },
     { "include": "#strings" },
     { "include": "#use-statement" },
+    { "include": "#extern-statement" },
     { "include": "#class-declaration" },
     { "include": "#function-declaration" },
     { "include": "#new-expression" },
@@ -74,6 +75,26 @@
           "match": "\\b(use)\\s+(\"(?:\\\\.|[^\"\\\\])*\")",
           "captures": {
             "1": { "name": "keyword.control.import.mkji" },
+            "2": { "name": "string.quoted.double.mkji" }
+          }
+        }
+      ]
+    },
+    "extern-statement": {
+      "patterns": [
+        {
+          "name": "meta.extern.mkji",
+          "match": "\\b(extern)\\s+(\"(?:\\\\.|[^\"\\\\])*\")",
+          "captures": {
+            "1": { "name": "keyword.control.import.mkji" },
+            "2": { "name": "string.quoted.double.mkji" }
+          }
+        },
+        {
+          "name": "meta.extern.alias.mkji",
+          "match": "\\b(as)\\s+(\"(?:\\\\.|[^\"\\\\])*\")",
+          "captures": {
+            "1": { "name": "keyword.control.mkji" },
             "2": { "name": "string.quoted.double.mkji" }
           }
         }
@@ -154,11 +175,11 @@
       "patterns": [
         {
           "name": "keyword.control.mkji",
-          "match": "\\b(?:if|else|while|return)\\b"
+          "match": "\\b(?:if|else|while|return|as)\\b"
         },
         {
           "name": "keyword.control.import.mkji",
-          "match": "\\buse\\b"
+          "match": "\\b(?:use|extern)\\b"
         },
         {
           "name": "keyword.operator.new.mkji",

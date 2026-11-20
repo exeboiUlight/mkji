@@ -165,11 +165,12 @@ fn void compile_input(string inpath, string outpath, string tgt) {
 
     if (pe) {
         img.compute_pe_layout();
-        img_prepare_pe(img);
+        img_prepare_pe(img, prog);
         img.resolve();
         write_pe(img, outpath);
     } else {
         img.compute_elf_layout();
+        img_prepare_elf(img, prog);
         img.resolve();
         write_elf(img, outpath);
     }
@@ -305,11 +306,12 @@ fn void compile_project(string projpath) {
 
     if (pe) {
         img.compute_pe_layout();
-        img_prepare_pe(img);
+        img_prepare_pe(img, prog);
         img.resolve();
         write_pe(img, outp);
     } else {
         img.compute_elf_layout();
+        img_prepare_elf(img, prog);
         img.resolve();
         write_elf(img, outp);
     }

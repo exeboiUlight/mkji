@@ -277,6 +277,31 @@ class ClassInfo {
     }
 }
 
+class ExternLib {
+    byte[] name;
+    int namelen;
+
+    fn void setup(byte[] n, int nl) {
+        this.name = n;
+        this.namelen = nl;
+    }
+}
+
+class ExternFunc {
+    byte[] name;      // MKJI-visible name
+    int namelen;
+    byte[] cname;     // symbol name in library
+    int cnlen;
+    int lib;          // index in Prog.extlibs
+    int ret;
+    int[] ptypes;
+    int nparams;
+
+    fn void setup(byte[] n, int nl, byte[] cn, int cnl, int lib, int retv) {
+        this.nparams = 0;
+    }
+}
+
 class Prog {
     Func[] funcs;
     int nfuncs;
@@ -292,6 +317,10 @@ class Prog {
     int ntop;
     VarEnt[] tvars;
     int ntvars;
+    ExternLib[] extlibs;
+    int nextlibs;
+    ExternFunc[] externs;
+    int nexterns;
 
     fn void setup() {
         this.funcs = new Func[256];
@@ -308,6 +337,48 @@ class Prog {
         this.ntop = 0;
         this.tvars = new VarEnt[256];
         this.ntvars = 0;
+        this.extlibs = new ExternLib[64];
+        this.nextlibs = 0;
+        this.externs = new ExternFunc[256];
+        this.nexterns = 0;
+    }
+
+    fn int find_extlib(byte[] n, int nl) {
+        int i = 0;
+        while (i < this.nextlibs) {
+            if (names_eq(this.extlibs[i].name, this.extlibs[i].namelen, n, nl))
+                return i;
+            i = i + 1;
+        }
+        return -1;
+    }
+
+    fn int add_extlib(byte[] n, int nl) {
+        int id = this.find_extlib(n, nl);
+        if (id >= 0) return id;
+        ExternLib e = new ExternLib();
+        e.setup(n, nl);
+        int idx = this.nextlibs;
+        this.extlibs[idx] = e;
+        this.nextlibs = idx + 1;
+        return idx;
+    }
+
+    fn int find_extern(byte[] n, int nl) {
+        int i = 0;
+        while (i < this.nexterns) {
+            if (names_eq(this.externs[i].name, this.externs[i].namelen, n, nl))
+                return i;
+            i = i + 1;
+        }
+        return -1;
+    }
+
+    fn int add_extern(ExternFunc f) {
+        int id = this.nexterns;
+        this.externs[id] = f;
+        this.nexterns = id + 1;
+        return id;
     }
 
     fn void add_tvar(byte[] n, int nl, int t) {
