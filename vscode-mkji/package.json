@@ -2,7 +2,7 @@
   "name": "mkji-language",
   "displayName": "MKJI Language",
   "description": "Syntax highlighting and diagnostics for the MKJI programming language",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "mkji",
   "license": "MIT",
   "engines": {

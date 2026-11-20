@@ -95,8 +95,8 @@
       "patterns": [
         {
           "name": "meta.function.declaration.mkji",
-          "match": "\\b(fn)\\s+((?:[A-Za-z_][A-Za-z0-9_]*)(?:\\s*\\[\\s*\\])*)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(?=\\()",
-          "captures": {
+          "begin": "\\b(fn)\\s+((?:[A-Za-z_][A-Za-z0-9_]*)(?:\\s*\\[\\s*\\])*)\\s+([A-Za-z_][A-Za-z0-9_]*)\\s*(\\()",
+          "beginCaptures": {
             "1": { "name": "storage.type.function.mkji" },
             "2": {
               "patterns": [
@@ -105,8 +105,31 @@
                 { "name": "storage.modifier.array.mkji", "match": "\\[\\s*\\]" }
               ]
             },
-            "3": { "name": "entity.name.function.definition.mkji" }
-          }
+            "3": { "name": "entity.name.function.definition.mkji" },
+            "4": { "name": "punctuation.section.parameters.begin.mkji" }
+          },
+          "end": "\\)",
+          "endCaptures": {
+            "0": { "name": "punctuation.section.parameters.end.mkji" }
+          },
+          "patterns": [
+            { "include": "#comments" },
+            {
+              "match": "\\b([A-Za-z_][A-Za-z0-9_]*)(\\s*(?:\\[\\s*\\])*)\\s+([A-Za-z_][A-Za-z0-9_]*)",
+              "captures": {
+                "1": {
+                  "patterns": [
+                    { "include": "#primitive-types" },
+                    { "name": "entity.name.type.mkji", "match": "[A-Za-z_][A-Za-z0-9_]*" }
+                  ]
+                },
+                "2": { "name": "storage.modifier.array.mkji" },
+                "3": { "name": "variable.parameter.mkji" }
+              }
+            },
+            { "name": "punctuation.separator.comma.mkji", "match": "," },
+            { "include": "#primitive-types" }
+          ]
         }
       ]
     },
@@ -236,19 +259,17 @@
     "declaration-types": {
       "patterns": [
         {
-          "comment": "Type in variable/field/parameter declarations: Type name  or  Type[] name",
-          "match": "\\b([A-Za-z_][A-Za-z0-9_]*)(\\s*(?:\\[\\s*\\])*)\\s+(?=[A-Za-z_][A-Za-z0-9_]*\\s*(?:=|;|,|\\)))",
+          "comment": "Type and name in declarations: Type name; / Type name = / Type[] name ...",
+          "match": "\\b(?!(?:if|else|while|return|fn|class|new|use|this|true|false|null|print|panic|read_file|write_file|str_from|arg_count|get_arg)\\b)([A-Za-z_][A-Za-z0-9_]*)(\\s*(?:\\[\\s*\\])*)\\s+([A-Za-z_][A-Za-z0-9_]*)(?=\\s*(?:=|;|,|\\)))",
           "captures": {
             "1": {
               "patterns": [
                 { "include": "#primitive-types" },
-                {
-                  "name": "entity.name.type.mkji",
-                  "match": "\\b(?!if\\b|else\\b|while\\b|return\\b|fn\\b|class\\b|new\\b|use\\b|this\\b|true\\b|false\\b|null\\b|print\\b|panic\\b|read_file\\b|write_file\\b|str_from\\b|arg_count\\b|get_arg\\b)[A-Za-z_][A-Za-z0-9_]*\\b"
-                }
+                { "name": "entity.name.type.mkji", "match": "[A-Za-z_][A-Za-z0-9_]*" }
               ]
             },
-            "2": { "name": "storage.modifier.array.mkji" }
+            "2": { "name": "storage.modifier.array.mkji" },
+            "3": { "name": "variable.other.declaration.mkji" }
           }
         }
       ]
